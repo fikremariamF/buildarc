@@ -1,4 +1,5 @@
 import 'package:ardennes/features/drawings_catalog/drawings_catalog_bloc.dart';
+import 'package:ardennes/features/home_screen/bloc.dart';
 import 'package:ardennes/libraries/account_context/bloc.dart';
 import 'package:ardennes/libraries/drawing/drawing_catalog_loader.dart';
 import 'package:get_it/get_it.dart';
@@ -23,4 +24,7 @@ abstract class RegisterModule {
 
   @factoryMethod
   AccountContextBloc get accountContextBloc => AccountContextBloc();
+  
+  @factoryMethod
+  HomeScreenBloc get homeScreenBloc => HomeScreenBloc();
 }

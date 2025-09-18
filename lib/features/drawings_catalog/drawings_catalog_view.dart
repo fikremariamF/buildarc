@@ -3,6 +3,8 @@ import 'package:ardennes/libraries/account_context/state.dart';
 import 'package:ardennes/libraries/core_ui/image_downloading/image_firebase.dart';
 import 'package:ardennes/models/drawings/drawing_item.dart';
 import 'package:ardennes/models/drawings/drawings_catalog_data.dart';
+import 'package:ardennes/models/screens/home_screen_data.dart';
+import 'package:ardennes/features/home_screen/recently_viewed_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shimmer/shimmer.dart';
@@ -113,8 +115,24 @@ class DrawingGrid extends StatelessWidget {
     return GridView.count(
       crossAxisCount: 3,
       children: drawingItems.map((drawing) {
-        return GestureDetector(
+        return         GestureDetector(
           onTap: () {
+            // Save to recently viewed before navigating
+            final accountState = context.read<AccountContextBloc>().state;
+            if (accountState is AccountContextLoadedState && accountState.selectedProject != null) {
+              final recentlyViewedDrawing = RecentlyViewedDrawingTile(
+                title: drawing.title,
+                subtitle: drawing.collection,
+                drawingThumbnailUrl: drawing.thumbnailUrl,
+              );
+              
+              RecentlyViewedService.saveDrawing(
+                context: context,
+                selectedProject: accountState.selectedProject!,
+                drawing: recentlyViewedDrawing,
+              );
+            }
+            
             context.go(
               Uri(
                 path: '/drawings/sheet/',

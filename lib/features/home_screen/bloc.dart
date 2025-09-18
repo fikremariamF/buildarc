@@ -18,41 +18,66 @@ class HomeScreenBloc extends Bloc<HomeScreenEvent, HomeScreenState> {
 
   void _init(InitEvent event, Emitter<HomeScreenState> emit) async {
     emit(state.clone());
+    // Don't fetch data here since we don't have the selected project yet
+    // The fetch will be triggered by the view when it has the project context
   }
 
   void _fetchHomeScreenContent(
       FetchHomeScreenContentEvent event, Emitter<HomeScreenState> emit) async {
     User? currentUser = FirebaseAuth.instance.currentUser;
-    if (_currentSelectedProject == event.selectedProject) {
-      return;
-    }
     if (currentUser == null) {
       return emit(HomeScreenFetchErrorState("User doesn't exist"));
     }
 
     emit(FetchingHomeScreenContentState());
+    _currentSelectedProject = event.selectedProject; // Update current project
     String userId = currentUser.uid;
-    Query<HomeScreenData> homeScreenQuery = FirebaseFirestore.instance
+    
+    // Use the same document ID pattern as the service
+    final docId = "project_${event.selectedProject.id}_user_$userId";
+    DocumentReference<Map<String, dynamic>> docRef = FirebaseFirestore.instance
         .collection('home_screens')
-        .where('user_id', isEqualTo: userId)
-        .where('project_id', isEqualTo: event.selectedProject.id)
-        .withConverter(
-          fromFirestore: HomeScreenData.fromFirestore,
-          toFirestore: HomeScreenData.toFirestore,
-        );
+        .doc(docId);
+
+    
     try {
-      QuerySnapshot<HomeScreenData> querySnapshot = await homeScreenQuery.get();
-      HomeScreenData? homeScreenData = querySnapshot.docs.firstOrNull?.data();
-      if (homeScreenData != null) {
-        emit(FetchedHomeScreenContentState(
-            recentlyViewedDrawingTiles: homeScreenData.drawings ?? []));
+      // Get the specific document
+      DocumentSnapshot<Map<String, dynamic>> docSnapshot = await docRef.get(
+        const GetOptions(source: Source.server)
+      );
+      
+      if (docSnapshot.exists) {
+        final data = docSnapshot.data()!;
+        
+        // Parse the drawings from the raw data
+        List<RecentlyViewedDrawingTile> drawings = [];
+        if (data['drawings'] is List) {
+          try {
+            drawings = (data['drawings'] as List)
+                .map((drawingMap) {
+                  return RecentlyViewedDrawingTile(
+                    title: drawingMap['title'] ?? '',
+                    subtitle: drawingMap['subtitle'] ?? '',
+                    drawingThumbnailUrl: drawingMap['drawingThumbnailUrl'] ?? '',
+                  );
+                })
+                .toList();
+          } catch (parseError) {
+            debugPrint("ERROR parsing drawings: $parseError");
+          }
+        }
+        
+        emit(FetchedHomeScreenContentState(recentlyViewedDrawingTiles: drawings));
+        return;
       } else {
-        // TODO: Handle the project doesn't have a homescreen setup
-        emit(HomeScreenFetchErrorState("Project id doesn't exist"));
+        debugPrint("ERROR: No home screen data found for project ${event.selectedProject.id}");
+        emit(HomeScreenFetchErrorState("No data found for this project"));
       }
     } catch (e) {
-      debugPrint(e.toString());
+      debugPrint("ERROR in _fetchHomeScreenContent: $e");
       emit(HomeScreenFetchErrorState(e.toString()));
     }
   }
+
+
 }

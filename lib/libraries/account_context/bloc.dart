@@ -29,6 +29,7 @@ class AccountContextBloc
 
   void _fetchProjects(
       InitEvent event, Emitter<AccountContextState> emit) async {
+    print("Fetching projects");
     User? currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
       return emit(AccountContextErrorState("No Projects Setup"));
@@ -48,20 +49,20 @@ class AccountContextBloc
     try {
       DocumentSnapshot<UserData> docSnapshot = await userDoc.get();
       userData = docSnapshot.data();
+      if (userData != null) {
+        debugPrint(
+            "User doc: ${jsonEncode(UserData.toFirestore(userData, null))}");
+      }
     } catch (e) {
       debugPrint(e.toString());
       emit(AccountContextErrorState("Error fetching user data"));
     }
 
     if (userData == null) {
-      // TODO: Handle no user data
-      emit(AccountContextErrorState("No user data"));
       return;
     }
     projects = userData.projects ?? [];
     if (projects.isEmpty) {
-      // TODO: Handle no projects setup
-      emit(AccountContextErrorState("No Projects Setup"));
       return;
     }
     final savedFirstProject = await loadSelectedProject();

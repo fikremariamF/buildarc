@@ -1,7 +1,11 @@
 import 'package:ardennes/features/home_screen/state.dart';
+import 'package:ardennes/libraries/account_context/bloc.dart';
+import 'package:ardennes/libraries/account_context/state.dart';
 import 'package:ardennes/libraries/core_ui/image_downloading/image_firebase.dart';
 import 'package:ardennes/libraries/core_ui/shimmer/bar_shimmer.dart';
 import 'package:ardennes/libraries/extensions/scoped.dart';
+import 'package:ardennes/models/screens/home_screen_data.dart';
+import 'package:ardennes/features/home_screen/recently_viewed_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -46,7 +50,8 @@ class RecentlyViewedDrawings extends StatelessWidget {
                           return _RecentlyViewedDrawingTile(
                               title: tile.title,
                               subtitle: tile.subtitle,
-                              drawingThumbnailUrl: tile.drawingThumbnailUrl);
+                              drawingThumbnailUrl: tile.drawingThumbnailUrl,
+                              drawing: tile);
                         }),
                         separatorBuilder: (BuildContext context, int index) =>
                             const SizedBox(width: 16.0),
@@ -73,16 +78,30 @@ class _RecentlyViewedDrawingTile extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.drawingThumbnailUrl,
+    required this.drawing,
   }) : super(key: key);
 
   final String title;
   final String subtitle;
   final String drawingThumbnailUrl;
+  final RecentlyViewedDrawingTile drawing;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
         onTap: () {
+          // Get the selected project from AccountContextBloc
+          final accountState = context.read<AccountContextBloc>().state;
+          if (accountState is AccountContextLoadedState && accountState.selectedProject != null) {
+            // Save the drawing to recently viewed
+            RecentlyViewedService.saveDrawing(
+              context: context,
+              selectedProject: accountState.selectedProject!,
+              drawing: drawing,
+            );
+          }
+          
+          // Navigate to the drawing detail
           context.go(
             Uri(
               path: '/drawings/sheet',
