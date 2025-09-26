@@ -64,7 +64,6 @@ class RecentlyViewedService {
       List<RecentlyViewedDrawingTile> currentDrawings = [];
       
       if (docSnapshot.exists && docSnapshot.data() != null) {
-        // Get existing drawings from raw data
         final data = docSnapshot.data()!;
         if (data['drawings'] is List) {
           currentDrawings = (data['drawings'] as List)

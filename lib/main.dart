@@ -83,7 +83,7 @@ void populateFirestore() {
   final drawings = populateDrawingsDetailNoorAcademy();
   populateDrawingsCatalogNoorAcademy(drawings);
   populateUsers();
-  // populateHomeScreens(); // Commented out to allow real data saving
+  populateHomeScreens();
 }
 
 Future<void> _configureFirebaseStorage() async {

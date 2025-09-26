@@ -18,8 +18,6 @@ class HomeScreenBloc extends Bloc<HomeScreenEvent, HomeScreenState> {
 
   void _init(InitEvent event, Emitter<HomeScreenState> emit) async {
     emit(state.clone());
-    // Don't fetch data here since we don't have the selected project yet
-    // The fetch will be triggered by the view when it has the project context
   }
 
   void _fetchHomeScreenContent(
@@ -30,10 +28,9 @@ class HomeScreenBloc extends Bloc<HomeScreenEvent, HomeScreenState> {
     }
 
     emit(FetchingHomeScreenContentState());
-    _currentSelectedProject = event.selectedProject; // Update current project
+    _currentSelectedProject = event.selectedProject;
     String userId = currentUser.uid;
     
-    // Use the same document ID pattern as the service
     final docId = "project_${event.selectedProject.id}_user_$userId";
     DocumentReference<Map<String, dynamic>> docRef = FirebaseFirestore.instance
         .collection('home_screens')
@@ -41,7 +38,6 @@ class HomeScreenBloc extends Bloc<HomeScreenEvent, HomeScreenState> {
 
     
     try {
-      // Get the specific document
       DocumentSnapshot<Map<String, dynamic>> docSnapshot = await docRef.get(
         const GetOptions(source: Source.server)
       );

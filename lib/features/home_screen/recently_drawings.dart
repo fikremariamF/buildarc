@@ -90,10 +90,8 @@ class _RecentlyViewedDrawingTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
         onTap: () {
-          // Get the selected project from AccountContextBloc
           final accountState = context.read<AccountContextBloc>().state;
           if (accountState is AccountContextLoadedState && accountState.selectedProject != null) {
-            // Save the drawing to recently viewed
             RecentlyViewedService.saveDrawing(
               context: context,
               selectedProject: accountState.selectedProject!,

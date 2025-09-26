@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('RecentlyViewedDrawings Basic Tests', () {
     testWidgets('should create RecentlyViewedDrawingTile widget', (WidgetTester tester) async {
-      // Arrange
+       
       final drawing = RecentlyViewedDrawingTile(
         title: 'Test Drawing',
         subtitle: 'Test Collection',
@@ -28,14 +28,13 @@ void main() {
         ),
       );
 
-      // Assert
       expect(find.text('Test Drawing'), findsOneWidget);
       expect(find.text('Test Collection'), findsOneWidget);
       expect(find.text('https://example.com/image.jpg'), findsOneWidget);
     });
 
     testWidgets('should handle empty strings in drawing tile', (WidgetTester tester) async {
-      // Arrange
+       
       final drawing = RecentlyViewedDrawingTile(
         title: '',
         subtitle: '',
@@ -57,12 +56,11 @@ void main() {
         ),
       );
 
-      // Assert
       expect(find.text(''), findsNWidgets(3));
     });
 
     testWidgets('should handle long text in drawing tile', (WidgetTester tester) async {
-      // Arrange
+       
       const longTitle = 'Very Long Drawing Title That Should Be Handled Properly';
       const longSubtitle = 'Very Long Collection Name That Should Be Handled Properly';
       const longUrl = 'https://example.com/very/long/url/that/should/be/handled/properly/image.jpg';
@@ -88,14 +86,13 @@ void main() {
         ),
       );
 
-      // Assert
       expect(find.text(longTitle), findsOneWidget);
       expect(find.text(longSubtitle), findsOneWidget);
       expect(find.text(longUrl), findsOneWidget);
     });
 
     testWidgets('should handle special characters in drawing tile', (WidgetTester tester) async {
-      // Arrange
+       
       final drawing = RecentlyViewedDrawingTile(
         title: 'Drawing with Special Characters: !@#\$%^&*()',
         subtitle: 'Collection with Special Characters: !@#\$%^&*()',
@@ -117,14 +114,13 @@ void main() {
         ),
       );
 
-      // Assert
       expect(find.text('Drawing with Special Characters: !@#\$%^&*()'), findsOneWidget);
       expect(find.text('Collection with Special Characters: !@#\$%^&*()'), findsOneWidget);
       expect(find.text('https://example.com/image-with-special-chars-!@#\$.jpg'), findsOneWidget);
     });
 
     testWidgets('should handle unicode characters in drawing tile', (WidgetTester tester) async {
-      // Arrange
+       
       final drawing = RecentlyViewedDrawingTile(
         title: 'Drawing with Unicode: 中文 日本語 한국어',
         subtitle: 'Collection with Unicode: 中文 日本語 한국어',
@@ -146,14 +142,13 @@ void main() {
         ),
       );
 
-      // Assert
       expect(find.text('Drawing with Unicode: 中文 日本語 한국어'), findsOneWidget);
       expect(find.text('Collection with Unicode: 中文 日本語 한국어'), findsOneWidget);
       expect(find.text('https://example.com/unicode-image-中文.jpg'), findsOneWidget);
     });
 
     testWidgets('should create a basic list view with drawings', (WidgetTester tester) async {
-      // Arrange
+       
       final drawings = [
         RecentlyViewedDrawingTile(
           title: 'Drawing 1',
@@ -186,7 +181,6 @@ void main() {
         ),
       );
 
-      // Assert
       expect(find.text('Drawing 1'), findsOneWidget);
       expect(find.text('Drawing 2'), findsOneWidget);
       expect(find.text('Collection 1'), findsOneWidget);
@@ -195,7 +189,7 @@ void main() {
     });
 
     testWidgets('should handle empty drawings list', (WidgetTester tester) async {
-      // Arrange
+       
       final drawings = <RecentlyViewedDrawingTile>[];
 
       // Act
@@ -217,7 +211,6 @@ void main() {
         ),
       );
 
-      // Assert
       expect(find.byType(ListView), findsOneWidget);
       expect(find.byType(ListTile), findsNothing);
     });

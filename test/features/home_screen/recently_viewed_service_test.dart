@@ -7,35 +7,33 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('RecentlyViewedService', () {
     test('should create RecentlyViewedDrawingTile with correct properties', () {
-      // Arrange
+       
       final drawing = RecentlyViewedDrawingTile(
         title: 'Test Drawing',
         subtitle: 'Test Collection',
         drawingThumbnailUrl: 'https://example.com/image.jpg',
       );
 
-      // Assert
       expect(drawing.title, equals('Test Drawing'));
       expect(drawing.subtitle, equals('Test Collection'));
       expect(drawing.drawingThumbnailUrl, equals('https://example.com/image.jpg'));
     });
 
     test('should handle empty strings in RecentlyViewedDrawingTile', () {
-      // Arrange
+       
       final drawing = RecentlyViewedDrawingTile(
         title: '',
         subtitle: '',
         drawingThumbnailUrl: '',
       );
 
-      // Assert
       expect(drawing.title, equals(''));
       expect(drawing.subtitle, equals(''));
       expect(drawing.drawingThumbnailUrl, equals(''));
     });
 
     test('should handle long strings in RecentlyViewedDrawingTile', () {
-      // Arrange
+       
       const longTitle = 'Very Long Drawing Title That Should Be Handled Properly';
       const longSubtitle = 'Very Long Collection Name That Should Be Handled Properly';
       const longUrl = 'https://example.com/very/long/url/that/should/be/handled/properly/image.jpg';
@@ -46,47 +44,43 @@ void main() {
         drawingThumbnailUrl: longUrl,
       );
 
-      // Assert
       expect(drawing.title, equals(longTitle));
       expect(drawing.subtitle, equals(longSubtitle));
       expect(drawing.drawingThumbnailUrl, equals(longUrl));
     });
 
     test('should create ProjectMetadata with correct properties', () {
-      // Arrange
+       
       final project = ProjectMetadata(
         id: 'test-project-id',
         name: 'Test Project',
       );
 
-      // Assert
       expect(project.id, equals('test-project-id'));
       expect(project.name, equals('Test Project'));
     });
 
     test('should handle special characters in drawing properties', () {
-      // Arrange
+       
       final drawing = RecentlyViewedDrawingTile(
         title: 'Drawing with Special Characters: !@#\$%^&*()',
         subtitle: 'Collection with Special Characters: !@#\$%^&*()',
         drawingThumbnailUrl: 'https://example.com/image-with-special-chars-!@#\$.jpg',
       );
 
-      // Assert
       expect(drawing.title, equals('Drawing with Special Characters: !@#\$%^&*()'));
       expect(drawing.subtitle, equals('Collection with Special Characters: !@#\$%^&*()'));
       expect(drawing.drawingThumbnailUrl, equals('https://example.com/image-with-special-chars-!@#\$.jpg'));
     });
 
     test('should handle unicode characters in drawing properties', () {
-      // Arrange
+       
       final drawing = RecentlyViewedDrawingTile(
         title: 'Drawing with Unicode: 中文 日本語 한국어',
         subtitle: 'Collection with Unicode: 中文 日本語 한국어',
         drawingThumbnailUrl: 'https://example.com/unicode-image-中文.jpg',
       );
 
-      // Assert
       expect(drawing.title, equals('Drawing with Unicode: 中文 日本語 한국어'));
       expect(drawing.subtitle, equals('Collection with Unicode: 中文 日本語 한국어'));
       expect(drawing.drawingThumbnailUrl, equals('https://example.com/unicode-image-中文.jpg'));
