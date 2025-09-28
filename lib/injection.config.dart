@@ -37,13 +37,13 @@ extension GetItInjectableX on _i174.GetIt {
     );
     final registerModule = _$RegisterModule();
     gh.factory<_i836.UIImageProvider>(() => _i836.UIImageProvider());
+    gh.factory<_i549.RecentlyViewedService>(
+        () => _i549.RecentlyViewedService());
     gh.factory<_i608.DrawingsCatalogBloc>(
         () => registerModule.drawingsCatalogBloc);
     gh.factory<_i905.DrawingDetailBloc>(() => registerModule.drawingDetailBloc);
     gh.factory<_i934.AccountContextBloc>(
         () => registerModule.accountContextBloc);
-    gh.factory<_i549.RecentlyViewedService>(
-        () => _i549.RecentlyViewedService());
     gh.factoryParam<_i573.DrawingCatalogService, _i455.ProjectMetadata?,
         dynamic>((
       savedSelectedProject,

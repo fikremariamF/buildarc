@@ -36,7 +36,6 @@ class DrawingsCatalog extends StatelessWidget {
                 subtitle: Text(item.discipline),
                 // Display the discipline
                 onTap: () {
-                  // Save to recently viewed before loading the sheet
                   final accountState = context.read<AccountContextBloc>().state;
                   if (accountState is AccountContextLoadedState && accountState.selectedProject != null) {
                     final recentlyViewedDrawing = RecentlyViewedDrawingTile(
@@ -53,7 +52,6 @@ class DrawingsCatalog extends StatelessWidget {
                     );
                   }
                   
-                  // Load the sheet
                   context.read<DrawingDetailBloc>().add(
                     LoadSheet(
                         number: item.title,

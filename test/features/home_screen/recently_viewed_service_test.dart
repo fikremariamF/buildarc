@@ -1,7 +1,5 @@
-import 'package:ardennes/features/home_screen/recently_viewed_service.dart';
 import 'package:ardennes/models/projects/project_metadata.dart';
 import 'package:ardennes/models/screens/home_screen_data.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

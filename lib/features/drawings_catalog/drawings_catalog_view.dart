@@ -114,9 +114,8 @@ class DrawingGrid extends StatelessWidget {
     return GridView.count(
       crossAxisCount: 3,
       children: drawingItems.map((drawing) {
-        return         GestureDetector(
+        return GestureDetector(
           onTap: () {
-            // Save to recently viewed before navigating
             final accountState = context.read<AccountContextBloc>().state;
             if (accountState is AccountContextLoadedState && accountState.selectedProject != null) {
               final recentlyViewedDrawing = RecentlyViewedDrawingTile(
@@ -124,8 +123,8 @@ class DrawingGrid extends StatelessWidget {
                 subtitle: drawing.collection,
                 drawingThumbnailUrl: drawing.thumbnailUrl,
               );
-              
-              
+
+
               context.read<DrawingsCatalogBloc>().add(
                 SaveRecentlyViewedDrawingEvent(
                   selectedProject: accountState.selectedProject!,
@@ -133,7 +132,6 @@ class DrawingGrid extends StatelessWidget {
                 ),
               );
             }
-            
             context.go(
               Uri(
                 path: '/drawings/sheet/',

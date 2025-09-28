@@ -5,8 +5,20 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 
+abstract class RecentlyViewedServiceAbstract {
+  Future<void> saveDrawing({
+    required ProjectMetadata selectedProject,
+    required RecentlyViewedDrawingTile drawing,
+  });
+
+  Future<List<RecentlyViewedDrawingTile>> getRecentlyViewedDrawings({
+    required ProjectMetadata selectedProject,
+  });
+}
+
 @injectable
-class RecentlyViewedService {
+class RecentlyViewedService extends RecentlyViewedServiceAbstract {
+  @override
   Future<void> saveDrawing({
     required ProjectMetadata selectedProject,
     required RecentlyViewedDrawingTile drawing,
@@ -41,15 +53,12 @@ class RecentlyViewedService {
               .toList();
         }
         
-        // Remove the drawing if it already exists (to re-insert at the top)
         currentDrawings.removeWhere((d) => 
           d.title == drawing.title);
       }
       
-      // Add the new drawing at the beginning
       currentDrawings.insert(0, drawing);
       
-      // Limit to a reasonable number of recent drawings (e.g., 10)
       if (currentDrawings.length > 10) {
         currentDrawings = currentDrawings.take(10).toList();
       }
@@ -65,7 +74,6 @@ class RecentlyViewedService {
         }).toList(),
       };
 
-      // Save the document (this will create or update)
       await docRef.set(dataToSave);
           
     } catch (e) {
@@ -73,6 +81,7 @@ class RecentlyViewedService {
     }
   }
 
+  @override
   Future<List<RecentlyViewedDrawingTile>> getRecentlyViewedDrawings({
     required ProjectMetadata selectedProject,
   }) async {

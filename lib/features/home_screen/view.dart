@@ -21,9 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => HomeScreenBloc(
-        recentlyViewedService: RecentlyViewedService(),
-      ),
+      create: (BuildContext context) => HomeScreenBloc(recentlyViewedService: RecentlyViewedService(),),
       child: Builder(builder: (context) => _HomeScreenContent()),
     );
   }
