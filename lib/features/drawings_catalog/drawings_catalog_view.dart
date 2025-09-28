@@ -4,7 +4,6 @@ import 'package:ardennes/libraries/core_ui/image_downloading/image_firebase.dart
 import 'package:ardennes/models/drawings/drawing_item.dart';
 import 'package:ardennes/models/drawings/drawings_catalog_data.dart';
 import 'package:ardennes/models/screens/home_screen_data.dart';
-import 'package:ardennes/features/home_screen/recently_viewed_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shimmer/shimmer.dart';
@@ -126,10 +125,12 @@ class DrawingGrid extends StatelessWidget {
                 drawingThumbnailUrl: drawing.thumbnailUrl,
               );
               
-              RecentlyViewedService.saveDrawing(
-                context: context,
-                selectedProject: accountState.selectedProject!,
-                drawing: recentlyViewedDrawing,
+              
+              context.read<DrawingsCatalogBloc>().add(
+                SaveRecentlyViewedDrawingEvent(
+                  selectedProject: accountState.selectedProject!,
+                  drawing: recentlyViewedDrawing,
+                ),
               );
             }
             

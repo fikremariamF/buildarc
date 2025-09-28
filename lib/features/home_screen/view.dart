@@ -1,5 +1,6 @@
 import 'package:ardennes/libraries/account_context/bloc.dart';
 import 'package:ardennes/libraries/account_context/state.dart';
+import 'package:ardennes/libraries/drawing/recently_viewed_drawing_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,11 +17,15 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
-
+class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
-    return _HomeScreenContent();
+    return BlocProvider(
+      create: (context) => HomeScreenBloc(
+        recentlyViewedService: RecentlyViewedService(),
+      ),
+      child: Builder(builder: (context) => _HomeScreenContent()),
+    );
   }
 }
 

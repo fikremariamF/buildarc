@@ -1,5 +1,6 @@
 import 'package:ardennes/models/drawings/drawings_catalog_data.dart';
 import 'package:ardennes/models/projects/project_metadata.dart';
+import 'package:ardennes/models/screens/home_screen_data.dart';
 
 sealed class DrawingsCatalogEvent {}
 
@@ -28,4 +29,14 @@ class UpdateSelectedDisciplineEvent extends DrawingsCatalogEvent {
 class UpdateSelectedTagEvent extends DrawingsCatalogEvent {
   final DrawingTag? selectedTag;
   UpdateSelectedTagEvent(this.selectedTag);
+}
+
+class SaveRecentlyViewedDrawingEvent extends DrawingsCatalogEvent {
+  final ProjectMetadata selectedProject;
+  final RecentlyViewedDrawingTile drawing;
+  
+  SaveRecentlyViewedDrawingEvent({
+    required this.selectedProject,
+    required this.drawing,
+  });
 }

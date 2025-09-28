@@ -1,24 +1,29 @@
 import 'package:ardennes/libraries/core_ui/canvas/sketch.dart';
+import 'package:ardennes/libraries/core_ui/event_bus.dart';
 import 'package:ardennes/libraries/drawing/image_provider.dart';
+import 'package:ardennes/libraries/drawing/recently_viewed_drawing_provider.dart';
 import 'package:ardennes/models/drawings/drawing_detail.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:injectable/injectable.dart';
 
 import 'drawing_detail_event.dart';
 import 'drawing_detail_state.dart';
 
-@injectable
 class DrawingDetailBloc extends Bloc<DrawingDetailEvent, DrawingDetailState> {
   final UIImageProvider uiImageProvider;
+  final RecentlyViewedService recentlyViewedService;
+  final EventBus _eventBus = EventBus();
   String? currentDrawingDocumentId;
 
-  DrawingDetailBloc({required this.uiImageProvider})
-      : super(DrawingDetailState().init()) {
+  DrawingDetailBloc({
+    required this.uiImageProvider,
+    required this.recentlyViewedService,
+  }) : super(DrawingDetailState().init()) {
     on<LoadSheet>(_loadSheet);
     on<AddAnnotation>(_addAnnotation);
     on<DeleteAnnotation>(_deleteAnnotation);
     on<UpdateAnnotation>(_updateAnnotation);
+    on<SaveRecentlyViewedDrawingEvent>(_saveRecentlyViewedDrawing);
   }
 
   void _loadSheet(LoadSheet event, Emitter<DrawingDetailState> emit) async {
@@ -126,6 +131,20 @@ class DrawingDetailBloc extends Bloc<DrawingDetailEvent, DrawingDetailState> {
           .collection('annotations')
           .doc(event.annotation.documentId)
           .update(annotationMap);
+    }
+  }
+
+  void _saveRecentlyViewedDrawing(SaveRecentlyViewedDrawingEvent event,
+      Emitter<DrawingDetailState> emit) async {
+    try {
+      await recentlyViewedService.saveDrawing(
+        selectedProject: event.selectedProject,
+        drawing: event.drawing,
+      );
+      
+      _eventBus.fire(RecentlyViewedUpdatedEvent(event.selectedProject.id!));
+    } catch (e) {
+      emit(DrawingDetailStateError(errorMessage: 'Error saving drawing to recents'));
     }
   }
 

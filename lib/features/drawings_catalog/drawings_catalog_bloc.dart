@@ -1,4 +1,6 @@
+import 'package:ardennes/libraries/core_ui/event_bus.dart';
 import 'package:ardennes/libraries/drawing/drawing_catalog_loader.dart';
+import 'package:ardennes/libraries/drawing/recently_viewed_drawing_provider.dart';
 import 'package:ardennes/models/drawings/drawings_catalog_data.dart';
 import 'package:ardennes/models/projects/project_metadata.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,15 +13,20 @@ class DrawingsCatalogBloc
   DrawingsCatalogUIState savedUiState = DrawingsCatalogUIState();
   ProjectMetadata? savedSelectedProject;
   final DrawingCatalogService drawingCatalogService;
+  final RecentlyViewedService recentlyViewedService;
+  final EventBus _eventBus = EventBus();
 
-  DrawingsCatalogBloc(this.drawingCatalogService)
-      : super(DrawingsCatalogState().init()) {
+  DrawingsCatalogBloc({
+    required this.drawingCatalogService,
+    required this.recentlyViewedService,
+  }) : super(DrawingsCatalogState().init()) {
     on<InitEvent>(_init);
     on<FetchDrawingsCatalogEvent>(_fetchDrawingCatalog);
     on<UpdateSelectedCollectionEvent>(_updateSelectedCollection);
     on<UpdateSelectedDisciplineEvent>(_updateSelectedDiscipline);
     on<UpdateSelectedTagEvent>(_updateSelectedTag);
     on<UpdateSelectedVersionEvent>(_updateSelectedVersion);
+    on<SaveRecentlyViewedDrawingEvent>(_saveRecentlyViewedDrawing);
   }
 
   void _init(InitEvent event, Emitter<DrawingsCatalogState> emit) async {
@@ -76,6 +83,7 @@ class DrawingsCatalogBloc
       DrawingsCatalogData? drawingsCatalog = await drawingCatalogService
           .fetchDrawingCatalog(event.selectedProject);
       if (drawingsCatalog != null) {
+        savedSelectedProject = event.selectedProject;
         emit(FetchedDrawingsCatalogState(
           drawingsCatalog: drawingsCatalog,
           displayedItems: drawingsCatalog.drawingItems,
@@ -86,6 +94,20 @@ class DrawingsCatalogBloc
       }
     } catch (e) {
       emit(DrawingsCatalogFetchErrorState(e.toString()));
+    }
+  }
+
+  void _saveRecentlyViewedDrawing(SaveRecentlyViewedDrawingEvent event,
+      Emitter<DrawingsCatalogState> emit) async {
+    try {
+      await recentlyViewedService.saveDrawing(
+        selectedProject: event.selectedProject,
+        drawing: event.drawing,
+      );
+      
+      _eventBus.fire(RecentlyViewedUpdatedEvent(event.selectedProject.id!));
+    } catch (e) {
+      print('Error saving recently viewed drawing: $e');
     }
   }
 }

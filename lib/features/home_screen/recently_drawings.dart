@@ -1,11 +1,8 @@
 import 'package:ardennes/features/home_screen/state.dart';
-import 'package:ardennes/libraries/account_context/bloc.dart';
-import 'package:ardennes/libraries/account_context/state.dart';
 import 'package:ardennes/libraries/core_ui/image_downloading/image_firebase.dart';
 import 'package:ardennes/libraries/core_ui/shimmer/bar_shimmer.dart';
 import 'package:ardennes/libraries/extensions/scoped.dart';
 import 'package:ardennes/models/screens/home_screen_data.dart';
-import 'package:ardennes/features/home_screen/recently_viewed_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -90,15 +87,6 @@ class _RecentlyViewedDrawingTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
         onTap: () {
-          final accountState = context.read<AccountContextBloc>().state;
-          if (accountState is AccountContextLoadedState && accountState.selectedProject != null) {
-            RecentlyViewedService.saveDrawing(
-              context: context,
-              selectedProject: accountState.selectedProject!,
-              drawing: drawing,
-            );
-          }
-          
           // Navigate to the drawing detail
           context.go(
             Uri(

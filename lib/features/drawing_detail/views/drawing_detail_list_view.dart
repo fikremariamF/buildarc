@@ -3,7 +3,6 @@ import 'package:ardennes/features/drawing_detail/drawing_detail_bloc.dart';
 import 'package:ardennes/features/drawing_detail/drawing_detail_event.dart';
 import 'package:ardennes/features/drawings_catalog/drawings_catalog_bloc.dart';
 import 'package:ardennes/features/drawings_catalog/drawings_catalog_state.dart';
-import 'package:ardennes/features/home_screen/recently_viewed_service.dart';
 import 'package:ardennes/libraries/account_context/bloc.dart';
 import 'package:ardennes/libraries/account_context/state.dart';
 import 'package:ardennes/libraries/core_ui/image_downloading/image_firebase.dart';
@@ -46,10 +45,11 @@ class DrawingsCatalog extends StatelessWidget {
                       drawingThumbnailUrl: item.thumbnailUrl,
                     );
                     
-                    RecentlyViewedService.saveDrawing(
-                      context: context,
-                      selectedProject: accountState.selectedProject!,
-                      drawing: recentlyViewedDrawing,
+                    context.read<DrawingDetailBloc>().add(
+                      SaveRecentlyViewedDrawingEvent(
+                        selectedProject: accountState.selectedProject!,
+                        drawing: recentlyViewedDrawing,
+                      ),
                     );
                   }
                   
