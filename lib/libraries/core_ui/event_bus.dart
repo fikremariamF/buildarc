@@ -1,10 +1,8 @@
 import 'dart:async';
+import 'package:injectable/injectable.dart';
 
-/// Global event bus for cross-BloC communication
+@singleton
 class EventBus {
-  static final EventBus _instance = EventBus._internal();
-  factory EventBus() => _instance;
-  EventBus._internal();
 
   final StreamController<dynamic> _eventController = StreamController<dynamic>.broadcast();
 

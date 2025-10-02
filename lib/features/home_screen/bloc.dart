@@ -10,30 +10,34 @@ import 'state.dart';
 
 class HomeScreenBloc extends Bloc<HomeScreenEvent, HomeScreenState> {
   final RecentlyViewedService recentlyViewedService;
-  final EventBus _eventBus = EventBus();
+  final EventBus _eventBus;
   StreamSubscription? _eventSubscription;
   ProjectMetadata? _currentProject;
 
-  HomeScreenBloc({required this.recentlyViewedService}) : super(HomeScreenState().init()) {
+  HomeScreenBloc({
+    required this.recentlyViewedService,
+    required EventBus eventBus,
+  }) : _eventBus = eventBus,
+       super(HomeScreenState().init()) {
     on<InitEvent>(_init);
     on<FetchHomeScreenContentEvent>(_fetchHomeScreenContent);
     on<ListenToEventsEvent>(_listenToEvents);
     
-    // Start listening to global events
-    _startListening();
+    startListeningGlobalEvenets();
   }
 
-  void _startListening() {
+  void startListeningGlobalEvenets() {
     _eventSubscription = _eventBus.on<RecentlyViewedUpdatedEvent>().listen((event) {
-      if (_currentProject != null && event.projectId == _currentProject!.id) {
-        add(FetchHomeScreenContentEvent(_currentProject!));
+      final currentProject = _currentProject;
+      if (currentProject != null && event.projectId == currentProject.id) {
+        add(FetchHomeScreenContentEvent(currentProject));
       }
     });
     
     _eventBus.on<HomeScreenRefreshRequestedEvent>().listen((event) {
-
-      if (_currentProject != null && (event.projectId == null || event.projectId == _currentProject!.id)) {
-        add(FetchHomeScreenContentEvent(_currentProject!));
+      final currentProject = _currentProject;
+      if (currentProject != null && (event.projectId == null || event.projectId == currentProject.id)) {
+        add(FetchHomeScreenContentEvent(currentProject));
       }
     });
   }
@@ -49,25 +53,31 @@ class HomeScreenBloc extends Bloc<HomeScreenEvent, HomeScreenState> {
   }
 
   void _fetchHomeScreenContent(
-      FetchHomeScreenContentEvent event, Emitter<HomeScreenState> emit) async {
-    emit(FetchingHomeScreenContentState());
-    
-    _currentProject = event.selectedProject;
-    
-    try {
-      final drawings = await recentlyViewedService.getRecentlyViewedDrawings(
-        selectedProject: event.selectedProject,
-      );
-      
-      emit(FetchedHomeScreenContentState(recentlyViewedDrawingTiles: drawings));
-    } catch (e) {
-      debugPrint("ERROR in _fetchHomeScreenContent: $e");
-      emit(HomeScreenFetchErrorState(e.toString()));
+    FetchHomeScreenContentEvent event, Emitter<HomeScreenState> emit) async {
+  emit(FetchingHomeScreenContentState());
+  
+  _currentProject = event.selectedProject;
+  
+  try {
+    final projectId = event.selectedProject.id;
+    if (projectId == null) {
+      debugPrint("ERROR: Project ID is required");
+      emit(HomeScreenFetchErrorState("Project ID is required"));
+      return;
     }
+    
+    final drawings = await recentlyViewedService.getRecentlyViewedDrawings(
+      projectId: projectId,
+    );
+    
+    emit(FetchedHomeScreenContentState(recentlyViewedDrawingTiles: drawings));
+  } catch (e) {
+    debugPrint("ERROR in _fetchHomeScreenContent: $e");
+    emit(HomeScreenFetchErrorState(e.toString()));
   }
+}
 
   void _listenToEvents(ListenToEventsEvent event, Emitter<HomeScreenState> emit) {
-    // This event can be used to manually trigger listening setup if needed
-    _startListening();
+    startListeningGlobalEvenets();
   }
 }

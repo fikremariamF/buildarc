@@ -1,174 +1,149 @@
+import 'package:bloc_test/bloc_test.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/mockito.dart';
+import 'package:mockito/annotations.dart';
+
+import 'package:ardennes/features/home_screen/bloc.dart';
 import 'package:ardennes/features/home_screen/event.dart';
 import 'package:ardennes/features/home_screen/state.dart';
+import 'package:ardennes/libraries/drawing/recently_viewed_drawing_provider.dart';
 import 'package:ardennes/models/projects/project_metadata.dart';
 import 'package:ardennes/models/screens/home_screen_data.dart';
-import 'package:flutter_test/flutter_test.dart';
+import 'package:ardennes/libraries/core_ui/event_bus.dart';
 
+import 'bloc_test.mocks.dart';
+
+class TestEventBus implements EventBus {
+  @override
+  void fire(event) {}
+
+  @override
+  Stream<T> on<T>() => const Stream.empty();
+
+  @override
+  void dispose() {}
+}
+
+@GenerateMocks([RecentlyViewedService])
 void main() {
-  group('HomeScreenEvent', () {
-    test('InitEvent should be created correctly', () {
-      final event = InitEvent();
-      
-      expect(event, isA<InitEvent>());
-    });
+  late MockRecentlyViewedService mockRecentlyViewedService;
+  late TestEventBus testEventBus;
+  late ProjectMetadata project;
+  late HomeScreenBloc bloc;
 
-    test('FetchHomeScreenContentEvent should be created with correct project', () { 
-      final project = ProjectMetadata(
-        id: 'test-project',
-        name: 'Test Project',
-      );
-      
-      final event = FetchHomeScreenContentEvent(project);
-      
-      expect(event, isA<FetchHomeScreenContentEvent>());
-      expect(event.selectedProject, equals(project));
-    });
+  setUp(() {
+    mockRecentlyViewedService = MockRecentlyViewedService();
+    testEventBus = TestEventBus();
+    project = ProjectMetadata(
+      id: 'test-project-id',
+      name: 'Test Project',
+    );
+    bloc = HomeScreenBloc(
+      recentlyViewedService: mockRecentlyViewedService,
+      eventBus: testEventBus,
+    );
   });
 
-  group('HomeScreenState', () {
-    test('HomeScreenState should be created correctly', () {
-      final state = HomeScreenState();
-      
-      expect(state, isA<HomeScreenState>());
-    });
-
-    test('HomeScreenState init should return HomeScreenState', () {
-       
-      final state = HomeScreenState();
-      
-      final initState = state.init();
-      
-      expect(initState, isA<HomeScreenState>());
-    });
-
-    test('HomeScreenState clone should return HomeScreenState', () {
-       
-      final state = HomeScreenState();
-      
-      final clonedState = state.clone();
-      
-      expect(clonedState, isA<HomeScreenState>());
-    });
-
-    test('FetchingHomeScreenContentState should be created correctly', () {
-      final state = FetchingHomeScreenContentState();
-      
-      expect(state, isA<FetchingHomeScreenContentState>());
-      expect(state, isA<HomeScreenState>());
-    });
-
-    test('FetchingHomeScreenContentState clone should return FetchingHomeScreenContentState', () {
-       
-      final state = FetchingHomeScreenContentState();
-      
-      final clonedState = state.clone();
-      
-      expect(clonedState, isA<FetchingHomeScreenContentState>());
-    });
-
-    test('FetchedHomeScreenContentState should be created with drawings', () {
-       
-      final drawings = [
-        RecentlyViewedDrawingTile(
-          title: 'Drawing 1',
-          subtitle: 'Collection 1',
-          drawingThumbnailUrl: 'https://example.com/image1.jpg',
-        ),
-        RecentlyViewedDrawingTile(
-          title: 'Drawing 2',
-          subtitle: 'Collection 2',
-          drawingThumbnailUrl: 'https://example.com/image2.jpg',
-        ),
-      ];
-      
-      final state = FetchedHomeScreenContentState(recentlyViewedDrawingTiles: drawings);
-    
-      expect(state, isA<FetchedHomeScreenContentState>());
-      expect(state, isA<HomeScreenState>());
-      expect(state.recentlyViewedDrawingTiles, equals(drawings));
-      expect(state.recentlyViewedDrawingTiles.length, equals(2));
-    });
-
-    test('FetchedHomeScreenContentState clone should return FetchedHomeScreenContentState', () {
-       
-      final drawings = [
-        RecentlyViewedDrawingTile(
-          title: 'Drawing 1',
-          subtitle: 'Collection 1',
-          drawingThumbnailUrl: 'https://example.com/image1.jpg',
-        ),
-      ];
-      final state = FetchedHomeScreenContentState(recentlyViewedDrawingTiles: drawings);
-      
-      final clonedState = state.clone();
-    
-      expect(clonedState, isA<FetchedHomeScreenContentState>());
-      expect(clonedState.recentlyViewedDrawingTiles, equals(drawings));
-    });
-
-    test('HomeScreenFetchErrorState should be created with error message', () {
-       
-      const errorMessage = 'Test error message';
-      
-      final state = HomeScreenFetchErrorState(errorMessage);
-      
-      expect(state, isA<HomeScreenFetchErrorState>());
-      expect(state, isA<HomeScreenState>());
-      expect(state.errorMessage, equals(errorMessage));
-    });
-
-    test('HomeScreenFetchErrorState clone should return HomeScreenFetchErrorState', () {
-       
-      const errorMessage = 'Test error message';
-      final state = HomeScreenFetchErrorState(errorMessage);
-      
-      final clonedState = state.clone();
-      
-      expect(clonedState, isA<HomeScreenFetchErrorState>());
-      expect(clonedState.errorMessage, equals(errorMessage));
-    });
+  tearDown(() async {
+    await bloc.close();
   });
 
-  group('RecentlyViewedDrawingTile', () {
-    test('should be created with correct properties', () {
-       
-      const title = 'Test Drawing';
-      const subtitle = 'Test Collection';
-      const drawingThumbnailUrl = 'https://example.com/image.jpg';
-      
-      final drawing = RecentlyViewedDrawingTile(
-        title: title,
-        subtitle: subtitle,
-        drawingThumbnailUrl: drawingThumbnailUrl,
-      );
-      
-      expect(drawing.title, equals(title));
-      expect(drawing.subtitle, equals(subtitle));
-      expect(drawing.drawingThumbnailUrl, equals(drawingThumbnailUrl));
-    });
+  group('HomeScreenBloc - Recently Viewed Service Integration', () {
+    blocTest<HomeScreenBloc, HomeScreenState>(
+      'loads recently viewed drawings successfully',
+      build: () {
+        when(mockRecentlyViewedService.getRecentlyViewedDrawings(
+          projectId: anyNamed('projectId'),
+        )).thenAnswer((_) async => [
+              RecentlyViewedDrawingTile(
+                title: 'Drawing 1',
+                subtitle: 'Collection 1',
+                drawingThumbnailUrl: 'https://x/1.jpg',
+              ),
+            ]);
+        return bloc;
+      },
+      act: (_) => bloc.add(FetchHomeScreenContentEvent(project)),
+      expect: () => [
+        isA<FetchingHomeScreenContentState>(),
+        isA<FetchedHomeScreenContentState>().having(
+          (s) => s.recentlyViewedDrawingTiles.length,
+          'tiles length',
+          1,
+        ),
+      ],
+      verify: (_) {
+        verify(mockRecentlyViewedService.getRecentlyViewedDrawings(
+          projectId: 'test-project-id',
+        )).called(1);
+      },
+    );
 
-    test('should handle empty strings', () {
-      final drawing = RecentlyViewedDrawingTile(
-        title: '',
-        subtitle: '',
-        drawingThumbnailUrl: '',
-      );
-      
-      expect(drawing.title, equals(''));
-      expect(drawing.subtitle, equals(''));
-      expect(drawing.drawingThumbnailUrl, equals(''));
-    });
+    blocTest<HomeScreenBloc, HomeScreenState>(
+      'handles empty recently viewed list',
+      build: () {
+        when(mockRecentlyViewedService.getRecentlyViewedDrawings(
+          projectId: anyNamed('projectId'),
+        )).thenAnswer((_) async => []);
+        return bloc;
+      },
+      act: (_) => bloc.add(FetchHomeScreenContentEvent(project)),
+      expect: () => [
+        isA<FetchingHomeScreenContentState>(),
+        isA<FetchedHomeScreenContentState>().having(
+          (s) => s.recentlyViewedDrawingTiles.isEmpty,
+          'empty',
+          true,
+        ),
+      ],
+      verify: (_) {
+        verify(mockRecentlyViewedService.getRecentlyViewedDrawings(
+          projectId: 'test-project-id',
+        )).called(1);
+      },
+    );
 
-    test('should handle empty strings correctly', () {
-      final drawing = RecentlyViewedDrawingTile(
-        title: '',
-        subtitle: '',
-        drawingThumbnailUrl: '',
-      );
+    blocTest<HomeScreenBloc, HomeScreenState>(
+      'handles service errors gracefully',
+      build: () {
+        when(mockRecentlyViewedService.getRecentlyViewedDrawings(
+          projectId: anyNamed('projectId'),
+        )).thenThrow(Exception('Service error'));
+        return bloc;
+      },
+      act: (_) => bloc.add(FetchHomeScreenContentEvent(project)),
+      expect: () => [
+        isA<FetchingHomeScreenContentState>(),
+        isA<HomeScreenFetchErrorState>().having(
+          (s) => s.errorMessage.toLowerCase(),
+          'message',
+          contains('service error'),
+        ),
+      ],
+      verify: (_) {
+        verify(mockRecentlyViewedService.getRecentlyViewedDrawings(
+          projectId: 'test-project-id',
+        )).called(1);
+      },
+    );
 
-      expect(drawing.title, isEmpty);
-      expect(drawing.subtitle, isEmpty);
-      expect(drawing.drawingThumbnailUrl, isEmpty);
-    });
+    blocTest<HomeScreenBloc, HomeScreenState>(
+      'handles null project ID',
+      build: () {
+        when(mockRecentlyViewedService.getRecentlyViewedDrawings(
+          projectId: anyNamed('projectId'),
+        )).thenAnswer((_) async => []);
+        return bloc;
+      },
+      act: (_) => bloc.add(FetchHomeScreenContentEvent(ProjectMetadata(id: null, name: 'Test'))),
+      expect: () => [
+        isA<FetchingHomeScreenContentState>(),
+        isA<HomeScreenFetchErrorState>().having(
+          (s) => s.errorMessage,
+          'message',
+          'Project ID is required',
+        ),
+      ],
+    );
   });
 }

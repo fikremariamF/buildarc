@@ -1,6 +1,6 @@
+import 'package:ardennes/injection.dart';
 import 'package:ardennes/libraries/account_context/bloc.dart';
 import 'package:ardennes/libraries/account_context/state.dart';
-import 'package:ardennes/libraries/drawing/recently_viewed_drawing_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,7 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (BuildContext context) => HomeScreenBloc(recentlyViewedService: RecentlyViewedService(),),
+      create: (BuildContext context) => getIt<HomeScreenBloc>(),
       child: Builder(builder: (context) => _HomeScreenContent()),
     );
   }

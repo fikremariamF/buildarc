@@ -100,12 +100,16 @@ class DrawingsCatalogBloc
   void _saveRecentlyViewedDrawing(SaveRecentlyViewedDrawingEvent event,
       Emitter<DrawingsCatalogState> emit) async {
     try {
+      final projectId = event.selectedProject.id;
+      if (projectId == null) {
+        return;
+      }
       await recentlyViewedService.saveDrawing(
-        selectedProject: event.selectedProject,
+        projectId: projectId,
         drawing: event.drawing,
       );
       
-      _eventBus.fire(RecentlyViewedUpdatedEvent(event.selectedProject.id!));
+      _eventBus.fire(RecentlyViewedUpdatedEvent(projectId));
     } catch (e) {
       print('Error saving recently viewed drawing: $e');
     }

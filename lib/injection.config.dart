@@ -13,8 +13,10 @@ import 'package:ardennes/features/drawing_detail/drawing_detail_bloc.dart'
     as _i905;
 import 'package:ardennes/features/drawings_catalog/drawings_catalog_bloc.dart'
     as _i608;
+import 'package:ardennes/features/home_screen/bloc.dart' as _i699;
 import 'package:ardennes/injection.dart' as _i252;
 import 'package:ardennes/libraries/account_context/bloc.dart' as _i934;
+import 'package:ardennes/libraries/core_ui/event_bus.dart' as _i433;
 import 'package:ardennes/libraries/drawing/drawing_catalog_loader.dart'
     as _i573;
 import 'package:ardennes/libraries/drawing/image_provider.dart' as _i836;
@@ -44,6 +46,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i905.DrawingDetailBloc>(() => registerModule.drawingDetailBloc);
     gh.factory<_i934.AccountContextBloc>(
         () => registerModule.accountContextBloc);
+    gh.factory<_i699.HomeScreenBloc>(() => registerModule.homeScreenBloc);
+    gh.singleton<_i433.EventBus>(() => _i433.EventBus());
     gh.factoryParam<_i573.DrawingCatalogService, _i455.ProjectMetadata?,
         dynamic>((
       savedSelectedProject,

@@ -3,10 +3,7 @@ import 'package:ardennes/features/drawing_detail/drawing_detail_bloc.dart';
 import 'package:ardennes/features/drawing_detail/drawing_detail_event.dart';
 import 'package:ardennes/features/drawings_catalog/drawings_catalog_bloc.dart';
 import 'package:ardennes/features/drawings_catalog/drawings_catalog_state.dart';
-import 'package:ardennes/libraries/account_context/bloc.dart';
-import 'package:ardennes/libraries/account_context/state.dart';
 import 'package:ardennes/libraries/core_ui/image_downloading/image_firebase.dart';
-import 'package:ardennes/models/screens/home_screen_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -36,21 +33,6 @@ class DrawingsCatalog extends StatelessWidget {
                 subtitle: Text(item.discipline),
                 // Display the discipline
                 onTap: () {
-                  final accountState = context.read<AccountContextBloc>().state;
-                  if (accountState is AccountContextLoadedState && accountState.selectedProject != null) {
-                    final recentlyViewedDrawing = RecentlyViewedDrawingTile(
-                      title: item.title,
-                      subtitle: item.collection,
-                      drawingThumbnailUrl: item.thumbnailUrl,
-                    );
-                    
-                    context.read<DrawingDetailBloc>().add(
-                      SaveRecentlyViewedDrawingEvent(
-                        selectedProject: accountState.selectedProject!,
-                        drawing: recentlyViewedDrawing,
-                      ),
-                    );
-                  }
                   
                   context.read<DrawingDetailBloc>().add(
                     LoadSheet(

@@ -3,6 +3,7 @@ import 'package:ardennes/libraries/core_ui/event_bus.dart';
 import 'package:ardennes/libraries/drawing/image_provider.dart';
 import 'package:ardennes/libraries/drawing/recently_viewed_drawing_provider.dart';
 import 'package:ardennes/models/drawings/drawing_detail.dart';
+import 'package:ardennes/models/screens/home_screen_data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -12,13 +13,15 @@ import 'drawing_detail_state.dart';
 class DrawingDetailBloc extends Bloc<DrawingDetailEvent, DrawingDetailState> {
   final UIImageProvider uiImageProvider;
   final RecentlyViewedService recentlyViewedService;
-  final EventBus _eventBus = EventBus();
+  final EventBus _eventBus;
   String? currentDrawingDocumentId;
 
   DrawingDetailBloc({
     required this.uiImageProvider,
     required this.recentlyViewedService,
-  }) : super(DrawingDetailState().init()) {
+    required EventBus eventBus,
+  }) : _eventBus = eventBus,
+       super(DrawingDetailState().init()) {
     on<LoadSheet>(_loadSheet);
     on<AddAnnotation>(_addAnnotation);
     on<DeleteAnnotation>(_deleteAnnotation);
@@ -47,6 +50,24 @@ class DrawingDetailBloc extends Bloc<DrawingDetailEvent, DrawingDetailState> {
         final image = await uiImageProvider.getImage(
           drawingDetail.versions[event.versionId]!.files["hd_image"]!,
         );
+
+        
+        final recentlyViewedDrawing = RecentlyViewedDrawingTile(
+          title: drawingDetail.number,
+          subtitle: drawingDetail.collection,
+          drawingThumbnailUrl: drawingDetail.versions[event.versionId]!.files["thumbnail"] ?? '',
+        );
+        
+        try {
+          await recentlyViewedService.saveDrawing(
+            projectId: event.projectId,
+            drawing: recentlyViewedDrawing,
+          );
+          
+          _eventBus.fire(RecentlyViewedUpdatedEvent(event.projectId));
+        } catch (e) {
+          print('Failed to save to recently viewed: $e');
+        }
 
         if (currentDrawingDocumentId != null) {
           final annotationsQuery = FirebaseFirestore.instance
@@ -137,12 +158,17 @@ class DrawingDetailBloc extends Bloc<DrawingDetailEvent, DrawingDetailState> {
   void _saveRecentlyViewedDrawing(SaveRecentlyViewedDrawingEvent event,
       Emitter<DrawingDetailState> emit) async {
     try {
+      final projectId = event.selectedProject.id;
+      if (projectId == null) {
+        return;
+      }
+
       await recentlyViewedService.saveDrawing(
-        selectedProject: event.selectedProject,
+        projectId: projectId,
         drawing: event.drawing,
       );
       
-      _eventBus.fire(RecentlyViewedUpdatedEvent(event.selectedProject.id!));
+      _eventBus.fire(RecentlyViewedUpdatedEvent(projectId));
     } catch (e) {
       emit(DrawingDetailStateError(errorMessage: 'Error saving drawing to recents'));
     }

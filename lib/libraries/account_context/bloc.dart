@@ -29,7 +29,6 @@ class AccountContextBloc
 
   void _fetchProjects(
       InitEvent event, Emitter<AccountContextState> emit) async {
-    print("Fetching projects");
     User? currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
       return emit(AccountContextErrorState("No Projects Setup"));

@@ -1,6 +1,8 @@
 import 'package:ardennes/features/drawings_catalog/drawings_catalog_bloc.dart';
 import 'package:ardennes/features/drawing_detail/drawing_detail_bloc.dart';
+import 'package:ardennes/features/home_screen/bloc.dart';
 import 'package:ardennes/libraries/account_context/bloc.dart';
+import 'package:ardennes/libraries/core_ui/event_bus.dart';
 import 'package:ardennes/libraries/drawing/drawing_catalog_loader.dart';
 import 'package:ardennes/libraries/drawing/image_provider.dart';
 import 'package:ardennes/libraries/drawing/recently_viewed_drawing_provider.dart';
@@ -32,8 +34,16 @@ abstract class RegisterModule {
       DrawingDetailBloc(
         uiImageProvider: getIt<UIImageProvider>(),
         recentlyViewedService: getIt<RecentlyViewedService>(),
+        eventBus: getIt<EventBus>(),
       );
 
   @factoryMethod
   AccountContextBloc get accountContextBloc => AccountContextBloc();
+
+  @factoryMethod
+  HomeScreenBloc get homeScreenBloc =>
+      HomeScreenBloc(
+        recentlyViewedService: getIt<RecentlyViewedService>(),
+        eventBus: getIt<EventBus>(),
+      );
 }
