@@ -26,7 +26,6 @@ class DrawingDetailBloc extends Bloc<DrawingDetailEvent, DrawingDetailState> {
     on<AddAnnotation>(_addAnnotation);
     on<DeleteAnnotation>(_deleteAnnotation);
     on<UpdateAnnotation>(_updateAnnotation);
-    on<SaveRecentlyViewedDrawingEvent>(_saveRecentlyViewedDrawing);
   }
 
   void _loadSheet(LoadSheet event, Emitter<DrawingDetailState> emit) async {
@@ -58,15 +57,15 @@ class DrawingDetailBloc extends Bloc<DrawingDetailEvent, DrawingDetailState> {
           drawingThumbnailUrl: drawingDetail.versions[event.versionId]!.files["thumbnail"] ?? '',
         );
         
-        try {
-          await recentlyViewedService.saveDrawing(
-            projectId: event.projectId,
-            drawing: recentlyViewedDrawing,
-          );
-          
+        final saveResult = await recentlyViewedService.saveDrawing(
+          projectId: event.projectId,
+          drawing: recentlyViewedDrawing,
+        );
+        
+        if (saveResult.isSuccess) {
           _eventBus.fire(RecentlyViewedUpdatedEvent(event.projectId));
-        } catch (e) {
-          print('Failed to save to recently viewed: $e');
+        } else {
+          print('Failed to save to recently viewed: ${saveResult.error}');
         }
 
         if (currentDrawingDocumentId != null) {
@@ -155,23 +154,5 @@ class DrawingDetailBloc extends Bloc<DrawingDetailEvent, DrawingDetailState> {
     }
   }
 
-  void _saveRecentlyViewedDrawing(SaveRecentlyViewedDrawingEvent event,
-      Emitter<DrawingDetailState> emit) async {
-    try {
-      final projectId = event.selectedProject.id;
-      if (projectId == null) {
-        return;
-      }
-
-      await recentlyViewedService.saveDrawing(
-        projectId: projectId,
-        drawing: event.drawing,
-      );
-      
-      _eventBus.fire(RecentlyViewedUpdatedEvent(projectId));
-    } catch (e) {
-      emit(DrawingDetailStateError(errorMessage: 'Error saving drawing to recents'));
-    }
-  }
 
 }

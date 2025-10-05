@@ -1,6 +1,7 @@
 import 'package:ardennes/libraries/core_ui/event_bus.dart';
 import 'package:ardennes/libraries/drawing/recently_viewed_drawing_provider.dart';
 import 'package:ardennes/models/projects/project_metadata.dart';
+import 'package:ardennes/models/screens/home_screen_data.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:async';
@@ -66,11 +67,16 @@ class HomeScreenBloc extends Bloc<HomeScreenEvent, HomeScreenState> {
       return;
     }
     
-    final drawings = await recentlyViewedService.getRecentlyViewedDrawings(
+    final result = await recentlyViewedService.getRecentlyViewedDrawings(
       projectId: projectId,
     );
     
-    emit(FetchedHomeScreenContentState(recentlyViewedDrawingTiles: drawings));
+           if (result.isSuccess) {
+             emit(FetchedHomeScreenContentState(recentlyViewedDrawingTiles: result.data!));
+           } else {
+             debugPrint("ERROR fetching recently viewed drawings: ${result.error}");
+             emit(HomeScreenFetchErrorState("Failed to load recently viewed drawings: ${result.error}"));
+           }
   } catch (e) {
     debugPrint("ERROR in _fetchHomeScreenContent: $e");
     emit(HomeScreenFetchErrorState(e.toString()));

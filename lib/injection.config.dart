@@ -23,6 +23,8 @@ import 'package:ardennes/libraries/drawing/image_provider.dart' as _i836;
 import 'package:ardennes/libraries/drawing/recently_viewed_drawing_provider.dart'
     as _i549;
 import 'package:ardennes/models/projects/project_metadata.dart' as _i455;
+import 'package:cloud_firestore/cloud_firestore.dart' as _i974;
+import 'package:firebase_auth/firebase_auth.dart' as _i59;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 
@@ -39,8 +41,8 @@ extension GetItInjectableX on _i174.GetIt {
     );
     final registerModule = _$RegisterModule();
     gh.factory<_i836.UIImageProvider>(() => _i836.UIImageProvider());
-    gh.factory<_i549.RecentlyViewedService>(
-        () => _i549.RecentlyViewedService());
+    gh.factory<_i59.FirebaseAuth>(() => registerModule.firebaseAuth);
+    gh.factory<_i974.FirebaseFirestore>(() => registerModule.firebaseFirestore);
     gh.factory<_i608.DrawingsCatalogBloc>(
         () => registerModule.drawingsCatalogBloc);
     gh.factory<_i905.DrawingDetailBloc>(() => registerModule.drawingDetailBloc);
@@ -55,6 +57,10 @@ extension GetItInjectableX on _i174.GetIt {
     ) =>
         _i573.DrawingCatalogService(
             savedSelectedProject: savedSelectedProject));
+    gh.factory<_i549.RecentlyViewedService>(() => _i549.RecentlyViewedService(
+          gh<_i59.FirebaseAuth>(),
+          gh<_i974.FirebaseFirestore>(),
+        ));
     return this;
   }
 }

@@ -6,6 +6,8 @@ import 'package:ardennes/libraries/core_ui/event_bus.dart';
 import 'package:ardennes/libraries/drawing/drawing_catalog_loader.dart';
 import 'package:ardennes/libraries/drawing/image_provider.dart';
 import 'package:ardennes/libraries/drawing/recently_viewed_drawing_provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
 import 'injection.config.dart';
@@ -23,10 +25,15 @@ abstract class Env {
 @module
 abstract class RegisterModule {
   @factoryMethod
+  FirebaseAuth get firebaseAuth => FirebaseAuth.instance;
+
+  @factoryMethod
+  FirebaseFirestore get firebaseFirestore => FirebaseFirestore.instance;
+
+  @factoryMethod
   DrawingsCatalogBloc get drawingsCatalogBloc =>
       DrawingsCatalogBloc(
         drawingCatalogService: getIt<DrawingCatalogService>(),
-        recentlyViewedService: getIt<RecentlyViewedService>(),
       );
 
   @factoryMethod

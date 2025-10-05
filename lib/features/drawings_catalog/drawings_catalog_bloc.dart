@@ -1,6 +1,4 @@
-import 'package:ardennes/libraries/core_ui/event_bus.dart';
 import 'package:ardennes/libraries/drawing/drawing_catalog_loader.dart';
-import 'package:ardennes/libraries/drawing/recently_viewed_drawing_provider.dart';
 import 'package:ardennes/models/drawings/drawings_catalog_data.dart';
 import 'package:ardennes/models/projects/project_metadata.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,12 +11,9 @@ class DrawingsCatalogBloc
   DrawingsCatalogUIState savedUiState = DrawingsCatalogUIState();
   ProjectMetadata? savedSelectedProject;
   final DrawingCatalogService drawingCatalogService;
-  final RecentlyViewedService recentlyViewedService;
-  final EventBus _eventBus = EventBus();
 
   DrawingsCatalogBloc({
     required this.drawingCatalogService,
-    required this.recentlyViewedService,
   }) : super(DrawingsCatalogState().init()) {
     on<InitEvent>(_init);
     on<FetchDrawingsCatalogEvent>(_fetchDrawingCatalog);
@@ -26,7 +21,6 @@ class DrawingsCatalogBloc
     on<UpdateSelectedDisciplineEvent>(_updateSelectedDiscipline);
     on<UpdateSelectedTagEvent>(_updateSelectedTag);
     on<UpdateSelectedVersionEvent>(_updateSelectedVersion);
-    on<SaveRecentlyViewedDrawingEvent>(_saveRecentlyViewedDrawing);
   }
 
   void _init(InitEvent event, Emitter<DrawingsCatalogState> emit) async {
@@ -97,21 +91,4 @@ class DrawingsCatalogBloc
     }
   }
 
-  void _saveRecentlyViewedDrawing(SaveRecentlyViewedDrawingEvent event,
-      Emitter<DrawingsCatalogState> emit) async {
-    try {
-      final projectId = event.selectedProject.id;
-      if (projectId == null) {
-        return;
-      }
-      await recentlyViewedService.saveDrawing(
-        projectId: projectId,
-        drawing: event.drawing,
-      );
-      
-      _eventBus.fire(RecentlyViewedUpdatedEvent(projectId));
-    } catch (e) {
-      print('Error saving recently viewed drawing: $e');
-    }
-  }
 }
