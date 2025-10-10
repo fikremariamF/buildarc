@@ -33,6 +33,7 @@ class DrawingsCatalog extends StatelessWidget {
                 subtitle: Text(item.discipline),
                 // Display the discipline
                 onTap: () {
+                  
                   context.read<DrawingDetailBloc>().add(
                     LoadSheet(
                         number: item.title,

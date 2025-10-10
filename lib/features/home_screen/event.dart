@@ -9,3 +9,5 @@ class FetchHomeScreenContentEvent extends HomeScreenEvent {
 
   FetchHomeScreenContentEvent(this.selectedProject);
 }
+
+class ListenToEventsEvent extends HomeScreenEvent {}

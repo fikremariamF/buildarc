@@ -29,3 +29,4 @@ class UpdateSelectedTagEvent extends DrawingsCatalogEvent {
   final DrawingTag? selectedTag;
   UpdateSelectedTagEvent(this.selectedTag);
 }
+

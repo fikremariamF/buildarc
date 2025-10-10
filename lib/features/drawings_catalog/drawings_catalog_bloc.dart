@@ -12,8 +12,9 @@ class DrawingsCatalogBloc
   ProjectMetadata? savedSelectedProject;
   final DrawingCatalogService drawingCatalogService;
 
-  DrawingsCatalogBloc(this.drawingCatalogService)
-      : super(DrawingsCatalogState().init()) {
+  DrawingsCatalogBloc({
+    required this.drawingCatalogService,
+  }) : super(DrawingsCatalogState().init()) {
     on<InitEvent>(_init);
     on<FetchDrawingsCatalogEvent>(_fetchDrawingCatalog);
     on<UpdateSelectedCollectionEvent>(_updateSelectedCollection);
@@ -76,6 +77,7 @@ class DrawingsCatalogBloc
       DrawingsCatalogData? drawingsCatalog = await drawingCatalogService
           .fetchDrawingCatalog(event.selectedProject);
       if (drawingsCatalog != null) {
+        savedSelectedProject = event.selectedProject;
         emit(FetchedDrawingsCatalogState(
           drawingsCatalog: drawingsCatalog,
           displayedItems: drawingsCatalog.drawingItems,
@@ -88,4 +90,5 @@ class DrawingsCatalogBloc
       emit(DrawingsCatalogFetchErrorState(e.toString()));
     }
   }
+
 }

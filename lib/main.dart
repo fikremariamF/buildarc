@@ -6,6 +6,7 @@ import 'package:ardennes/features/drawings_catalog/drawings_catalog_event.dart'
     as dc_event;
 import 'package:ardennes/features/drawings_catalog/drawings_catalog_view.dart';
 import 'package:ardennes/features/home_screen/view.dart';
+import 'package:ardennes/features/home_screen/bloc.dart';
 import 'package:ardennes/injection.dart';
 import 'package:ardennes/libraries/account_context/bloc.dart';
 import 'package:ardennes/libraries/account_context/event.dart' as ac_event;
@@ -111,7 +112,9 @@ final _router = GoRouter(
           }),
           BlocProvider<AccountContextBloc>(
               create: (BuildContext context) =>
-                  getIt<AccountContextBloc>()..add(ac_event.InitEvent()))
+                  getIt<AccountContextBloc>()..add(ac_event.InitEvent())),
+          BlocProvider<HomeScreenBloc>(
+              create: (BuildContext context) => getIt<HomeScreenBloc>())
         ], child: MainScreen(navigationShell: navigationShell));
       },
       branches: [

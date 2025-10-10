@@ -1,20 +1,27 @@
 import 'package:ardennes/libraries/core_ui/canvas/sketch.dart';
+import 'package:ardennes/libraries/core_ui/event_bus.dart';
 import 'package:ardennes/libraries/drawing/image_provider.dart';
+import 'package:ardennes/libraries/drawing/recently_viewed_drawing_provider.dart';
 import 'package:ardennes/models/drawings/drawing_detail.dart';
+import 'package:ardennes/models/screens/home_screen_data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:injectable/injectable.dart';
 
 import 'drawing_detail_event.dart';
 import 'drawing_detail_state.dart';
 
-@injectable
 class DrawingDetailBloc extends Bloc<DrawingDetailEvent, DrawingDetailState> {
   final UIImageProvider uiImageProvider;
+  final RecentlyViewedService recentlyViewedService;
+  final EventBus _eventBus;
   String? currentDrawingDocumentId;
 
-  DrawingDetailBloc({required this.uiImageProvider})
-      : super(DrawingDetailState().init()) {
+  DrawingDetailBloc({
+    required this.uiImageProvider,
+    required this.recentlyViewedService,
+    required EventBus eventBus,
+  }) : _eventBus = eventBus,
+       super(DrawingDetailState().init()) {
     on<LoadSheet>(_loadSheet);
     on<AddAnnotation>(_addAnnotation);
     on<DeleteAnnotation>(_deleteAnnotation);
@@ -42,6 +49,24 @@ class DrawingDetailBloc extends Bloc<DrawingDetailEvent, DrawingDetailState> {
         final image = await uiImageProvider.getImage(
           drawingDetail.versions[event.versionId]!.files["hd_image"]!,
         );
+
+        
+        final recentlyViewedDrawing = RecentlyViewedDrawingTile(
+          title: drawingDetail.number,
+          subtitle: drawingDetail.collection,
+          drawingThumbnailUrl: drawingDetail.versions[event.versionId]!.files["thumbnail"] ?? '',
+        );
+        
+        final saveResult = await recentlyViewedService.saveDrawing(
+          projectId: event.projectId,
+          drawing: recentlyViewedDrawing,
+        );
+        
+        if (saveResult.isSuccess) {
+          _eventBus.fire(RecentlyViewedUpdatedEvent(event.projectId));
+        } else {
+          print('Failed to save to recently viewed: ${saveResult.error}');
+        }
 
         if (currentDrawingDocumentId != null) {
           final annotationsQuery = FirebaseFirestore.instance
@@ -128,5 +153,6 @@ class DrawingDetailBloc extends Bloc<DrawingDetailEvent, DrawingDetailState> {
           .update(annotationMap);
     }
   }
+
 
 }

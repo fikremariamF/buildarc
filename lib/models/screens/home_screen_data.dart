@@ -54,4 +54,14 @@ class HomeScreenData {
           "homeScreenData is not an instance of HomeScreenData");
     }
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'drawings': drawings?.map((drawing) => {
+        'title': drawing.title,
+        'subtitle': drawing.subtitle,
+        'drawingThumbnailUrl': drawing.drawingThumbnailUrl,
+      }).toList(),
+    };
+  }
 }
