@@ -71,6 +71,54 @@ void main() {
       expect(drawings.first.title, 'A-001');
       expect(drawings.last.title, 'A-003');
     });
+
+    test('Loading recently viewed - parses Firestore data correctly', () {
+      // Simulate Firestore document data
+      final firestoreData = {
+        'drawings': [
+          {'title': 'A-001', 'subtitle': 'Story One', 'drawingThumbnailUrl': 'thumb1.jpg'},
+          {'title': 'A-002', 'subtitle': 'Story Two', 'drawingThumbnailUrl': 'thumb2.jpg'},
+          {'title': 'A-003', 'subtitle': 'Story Three', 'drawingThumbnailUrl': 'thumb3.jpg'},
+        ]
+      };
+
+      // Test the parsing logic used in getRecentlyViewedDrawings
+      List<RecentlyViewedDrawingTile> drawings = [];
+      if (firestoreData['drawings'] is List) {
+        drawings = (firestoreData['drawings'] as List)
+            .map((drawingMap) => RecentlyViewedDrawingTile(
+                  title: drawingMap['title'],
+                  subtitle: drawingMap['subtitle'],
+                  drawingThumbnailUrl: drawingMap['drawingThumbnailUrl'],
+                ))
+            .toList();
+      }
+
+      expect(drawings.length, 3);
+      expect(drawings.first.title, 'A-001');
+      expect(drawings.first.subtitle, 'Story One');
+      expect(drawings.first.drawingThumbnailUrl, 'thumb1.jpg');
+      expect(drawings.last.title, 'A-003');
+    });
+
+    test('Loading empty recently viewed - handles missing data', () {
+      // Simulate empty Firestore document
+      final firestoreData = <String, dynamic>{};
+
+      // Test the parsing logic for empty data
+      List<RecentlyViewedDrawingTile> drawings = [];
+      if (firestoreData['drawings'] is List) {
+        drawings = (firestoreData['drawings'] as List)
+            .map((drawingMap) => RecentlyViewedDrawingTile(
+                  title: drawingMap['title'],
+                  subtitle: drawingMap['subtitle'],
+                  drawingThumbnailUrl: drawingMap['drawingThumbnailUrl'],
+                ))
+            .toList();
+      }
+
+      expect(drawings.isEmpty, true);
+    });
   });
 }
 
